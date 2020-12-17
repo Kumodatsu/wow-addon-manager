@@ -1,18 +1,8 @@
-use reqwest::Error;
-use reqwest::Client;
-
 mod net;
+mod file;
 
-#[tokio::main]
-async fn main() -> Result<(), Error> {
-    let client = Client::new();
-
-    let releases = net::github::get_releases(
-        &client,
-        "Kumodatsu",
-        "wow-addon-manager"
-    ).await?;
-    println!("{:?}", releases);
-    
-    Ok(())
+fn main() {
+    let config = file::config::read_config("config.yaml")
+        .expect("Could not open configuration file.");
+    println!("{:?}", config);
 }
