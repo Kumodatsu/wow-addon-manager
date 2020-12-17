@@ -1,6 +1,7 @@
 use serde::Deserialize;
 use reqwest::Client;
 use reqwest::header;
+use chrono::DateTime;
 
 #[derive(Debug, Deserialize)]
 pub struct Release {
@@ -50,5 +51,16 @@ pub async fn get_addon_data(
         .await?;
     let data: AddonData = response.json().await?;
     Ok(data)
+}
+
+pub fn get_latest_release(
+    releases:          &Vec<Release>,
+    allow_prereleases: bool,
+) -> Option<&Release> {
+    releases.into_iter()
+        .filter(|r| (allow_prereleases || r.release_type == 1)
+            && r.game_version_flavor == "wow_retail")
+        .max_by_key(|r| DateTime::parse_from_rfc3339(&r.file_date)
+            .expect("Encountered invalid date format in CurseForge release."))
 }
 
