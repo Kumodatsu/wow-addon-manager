@@ -4,9 +4,9 @@ use std::io;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    path:       String,
-    github:     Option<Vec<String>>,
-    curseforge: Option<Vec<u32>>,
+    pub path:       String,
+    pub github:     Option<Vec<String>>,
+    pub curseforge: Option<Vec<u32>>,
 }
 
 #[derive(Debug)]
