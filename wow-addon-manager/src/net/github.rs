@@ -12,6 +12,7 @@ pub struct Release {
     pub prerelease:   bool,
     pub published_at: String,
     pub zipball_url:  String,
+    pub tarball_url:  String,
 }
 
 pub async fn get_releases(
