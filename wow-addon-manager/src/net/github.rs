@@ -2,6 +2,7 @@ use serde::Deserialize;
 use reqwest::Client;
 use reqwest::Error;
 use reqwest::header;
+use chrono::DateTime;
 
 #[derive(Debug, Deserialize)]
 pub struct Release {
@@ -30,4 +31,14 @@ pub async fn get_releases(
         .await?;
     let releases: Vec<Release> = response.json().await?;
     Ok(releases)
+}
+
+pub fn get_latest_release(
+    releases:          &Vec<Release>,
+    allow_prereleases: bool
+) -> Option<&Release> {
+    releases.into_iter()
+        .filter(|r| allow_prereleases || !r.prerelease)
+        .max_by_key(|r| DateTime::parse_from_rfc3339(&r.published_at)
+            .expect("Encountered invalid date format in GitHub release."))
 }

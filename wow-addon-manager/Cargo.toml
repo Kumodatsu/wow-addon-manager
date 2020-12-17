@@ -14,3 +14,4 @@ reqwest     = { version = "0.10.10", features = ["json"] }
 tokio       = { version  = "0.2", features = [ "rt-threaded", "macros"] }
 select      = "0.6.0-alpha.1"
 error-chain = "0.12.4"
+chrono      = "0.4.19"
