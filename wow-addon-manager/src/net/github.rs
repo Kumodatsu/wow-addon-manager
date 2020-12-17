@@ -3,7 +3,7 @@ use reqwest::Client;
 use reqwest::Error;
 use reqwest::header;
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
 pub struct Release {
     url:        String,
     id:         u32,
