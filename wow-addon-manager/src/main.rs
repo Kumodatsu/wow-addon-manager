@@ -14,9 +14,11 @@ async fn main() -> Result<(), reqwest::Error> {
     let latest_release = net::github::get_latest_release(&releases, true);
     if let Some(latest_release) = latest_release {
         println!("{:?}", latest_release);
-        net::download::download(&client, &latest_release.zipball_url, "release.zip")
+        net::download::download(&client, &latest_release.tarball_url, "release.tar.gz")
             .await
             .expect("Could not download file.");
+        file::compression::unpack("release.tar.gz", "release")
+            .expect("Could not unpack release archive.");
     }
     Ok(())
 }
