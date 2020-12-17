@@ -5,10 +5,12 @@ use reqwest::header;
 
 #[derive(Debug, Deserialize)]
 pub struct Release {
-    url:        String,
-    id:         u32,
-    name:       String,
-    prerelease: bool,
+    pub url:          String,
+    pub id:           u32,
+    pub name:         String,
+    pub prerelease:   bool,
+    pub published_at: String,
+    pub zipball_url:  String,
 }
 
 pub async fn get_releases(
