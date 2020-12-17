@@ -1,8 +1,22 @@
+use reqwest::Client;
+
 mod net;
 mod file;
 
-fn main() {
-    let config = file::config::read_config("config.yaml")
-        .expect("Could not open configuration file.");
-    println!("{:?}", config);
+#[tokio::main]
+async fn main() -> Result<(), reqwest::Error> {
+    let client = Client::new();
+    let releases = net::github::get_releases(
+        &client, 
+        "Kumodatsu",
+        "CharacterSheet",
+    ).await?;
+    let latest_release = net::github::get_latest_release(&releases, true);
+    if let Some(latest_release) = latest_release {
+        println!("{:?}", latest_release);
+        net::download::download(&client, &latest_release.zipball_url, "release.zip")
+            .await
+            .expect("Could not download file.");
+    }
+    Ok(())
 }
