@@ -4,8 +4,6 @@ use std::io;
 use std::path::Path;
 use flate2::read::GzDecoder;
 use tar::Archive;
-use std::io::prelude::*;
-use zip::ZipArchive;
 
 pub fn unpack_tar(in_path: &str, out_path: &str) -> Result<(), io::Error> {
     let file = File::open(in_path)?;
