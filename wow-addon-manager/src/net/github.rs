@@ -43,3 +43,9 @@ pub fn get_latest_release(
         .max_by_key(|r| DateTime::parse_from_rfc3339(&r.published_at)
             .expect("Encountered invalid date format in GitHub release."))
 }
+
+pub fn get_owner_and_repo(url: &String) -> (&str, &str) {
+    let tokens: Vec<&str> = url.split('/').collect();
+    let n = tokens.len();
+    (tokens[n - 2], tokens[n - 1])
+}
