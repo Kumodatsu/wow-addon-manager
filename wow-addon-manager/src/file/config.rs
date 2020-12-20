@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::fmt;
 use std::fs;
 use std::io;
 
@@ -13,6 +14,15 @@ pub struct Config {
 pub enum ConfigError {
     IOError(io::Error),
     ParseError(serde_yaml::Error),
+}
+
+impl fmt::Display for ConfigError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ConfigError::IOError(e)    => fmt::Display::fmt(e, f),
+            ConfigError::ParseError(e) => fmt::Display::fmt(e, f),
+        }
+    }
 }
 
 impl From<io::Error> for ConfigError {

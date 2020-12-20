@@ -1,5 +1,6 @@
 use reqwest::Client;
 use reqwest::header;
+use std::fmt;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
@@ -26,6 +27,16 @@ impl From<reqwest::StatusCode> for DownloadError {
 impl From<io::Error> for DownloadError {
     fn from(error: io::Error) -> Self {
         Self::IOError(error)
+    }
+}
+
+impl fmt::Display for DownloadError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            DownloadError::RequestError(e) => fmt::Display::fmt(e, f),
+            DownloadError::StatusError(e)  => fmt::Display::fmt(e, f),
+            DownloadError::IOError(e)      => fmt::Display::fmt(e, f),
+        }
     }
 }
 
