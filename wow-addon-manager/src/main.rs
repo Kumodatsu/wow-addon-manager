@@ -1,6 +1,10 @@
 use fs_extra::dir::CopyOptions;
 use reqwest::Client;
 
+#[macro_use]
+extern crate clap;
+use clap::App;
+
 mod error;
 mod net;
 mod file;
@@ -9,7 +13,12 @@ use error::error::AddonError;
 
 #[tokio::main]
 async fn main() -> Result<(), AddonError> {
-    let config = file::config::read_config("config.yaml")
+    let yaml = load_yaml!("cmdargs.yaml");
+    let args = App::from_yaml(yaml).get_matches();
+
+    let config_path = args.value_of("config").unwrap_or("config.yaml");
+
+    let config = file::config::read_config(config_path)
         .expect("Could not read config file.");
     std::fs::create_dir_all("temp")?;
 
@@ -73,7 +82,7 @@ async fn main() -> Result<(), AddonError> {
     let addons    = file::detection::detect_addons(&temp_path)?;
 
     let copy_options = CopyOptions::new();
-    let config_path  = std::path::PathBuf::from(&config.path);
+    let addons_path  = std::path::PathBuf::from(&config.path);
 
     for addon in addons {
         println!("Copying {}.", addon.name);
@@ -81,11 +90,11 @@ async fn main() -> Result<(), AddonError> {
         let p = addon.path.parent().unwrap().join(&addon.name);
         std::fs::rename(&addon.path, &p)
             .expect("Could not rename folder.");
-        let target_path = config_path.join(&addon.name);
+        let target_path = addons_path.join(&addon.name);
         if target_path.exists() {
             std::fs::remove_dir_all(target_path)?;
         }
-        fs_extra::dir::copy(&p, &config_path, &copy_options)
+        fs_extra::dir::copy(&p, &addons_path, &copy_options)
             .expect("Could not copy files.");
     }
 

@@ -1,0 +1,22 @@
+name:    WoW Addon Manager
+version: "0.1.1"
+author:  Kumodatsu <dragonkumo@gmail.com>
+about:   >
+    A tool for automatically downloading, installing and updating World of
+    Warcraft addons.
+args:
+    - config:
+        short:       c
+        long:        config
+        help:        Specifies the path to a config file.
+        takes_value: true
+    - force:
+        short: f
+        long:  force
+        help:  >
+            Forces the application to download and install all addons even if
+            they are already up to date.
+    - verbose:
+        short: v
+        long:  verbose
+        help:  Output all messages regardless of severity.

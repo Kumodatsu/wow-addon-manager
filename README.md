@@ -48,7 +48,7 @@ To run the project, use the command
 You need to have a configuration file in the directory from which you run this
 command, or the application will complain (see "Usage").
 
-## Usage (0.1.0)
+## Usage (0.1.1)
 To use the program, you must create a "config.yaml" in the same folder as the
 application (or in the project folder if you built it yourself).
 Take care that you can see file name extensions when you do this, or you might

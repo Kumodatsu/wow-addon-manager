@@ -1,6 +1,6 @@
 [package]
 name    = "wow-addon-manager"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Kumodatsu <dragonkumo@gmail.com>"]
 edition = "2018"
 
@@ -19,3 +19,4 @@ flate2      = "1.0.14"
 tar         = "0.4.30"
 zip         = "0.5.9"
 fs_extra    = "1.2.0"
+clap        = { version = "2.33.3", features = ["yaml"] }
