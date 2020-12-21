@@ -49,6 +49,7 @@ You need to have a configuration file in the directory from which you run this
 command, or the application will complain (see "Usage").
 
 ## Usage (0.1.1)
+### Configuration file
 To use the program, you must create a "config.yaml" in the same folder as the
 application (or in the project folder if you built it yourself).
 Take care that you can see file name extensions when you do this, or you might
@@ -71,15 +72,20 @@ Here is an example of a correctly formatted configuration file:
     github:
         - https://github.com/Kumodatsu/Invite123
 
+    tukui:
+        - ElvUI
+
 The _path_ section is used to specify where your AddOns folder is located.
 This is always your World of Warcraft directory, and then
 `_retail_/Interface/AddOns`.
 The _curseforge_ section is to specify addons that should be downloaded from
 CurseForge.
-The numbers are the addon's _Project ID_ which you can find on the its
-CurseForge page.
+The numbers are the addon's _Project ID_ which you can find on its CurseForge
+page.
 The _github_ section is to specify addons that should be downloaded from GitHub.
-Just specify the base URL to the repository here.
+Specify the base URL to the repository here.
+The _tukui_ section is to specify addons from Tukui.
+Just specify the addon name (case sensitive!).
 If you do not need a section, you can just leave it out altogether (for example,
 if none of your addons are from GitHub, you can just leave the _github_ section
 out).
@@ -90,3 +96,16 @@ It will then try to find the addons you specified online, download them, extract
 them and finally move them to your AddOns folder.
 How long this takes naturally depends on the number of addons, your download
 speed and other such factors.
+
+### Command line arguments
+The application accepts several command line arguments.
+Use `wow-addon-manager --help` to see an exhaustive list of all accepted
+arguments.
+
+- `-f` or `--force`: Forces the application to download and install all addons
+even if they are already up to date. Currently, the application does this anyway
+regardless of whether or not this flag is specified.
+- `-h` or `--help`: Prints help information.
+- `-V` or `--version`: Prints version information.
+- `-v` or `--verbose`: Output all messages regardless of severity.
+- `-c <config>` or `--config=<config>`: Specifies the path to a config file.   
