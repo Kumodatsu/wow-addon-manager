@@ -129,7 +129,6 @@ async fn main() -> Result<(), AddonError> {
                 );
             }
         }
-        log::info!("Finished with CurseForge addons.");
     }
 
     if let Some(github) = config.github {
@@ -198,6 +197,62 @@ async fn main() -> Result<(), AddonError> {
         }
     }
     
+    if let Some(tukui) = config.tukui {
+        log::info!("Starting with Tukui addons.");
+        for addon_name in tukui {
+            log::info!("Starting with {}.", addon_name);
+            let addon = match net::tukui::get_addon(&client, &addon_name)
+                    .await {
+                Ok(addon) => addon,
+                Err(err)  => {
+                    log::warn!(
+                        "Skipping {} due to error: {}",
+                        addon_name,
+                        err,
+                    );
+                    continue;
+                },
+            };
+            if let Some(addon) = addon {
+                let download_path = "temp/tukuiaddon.zip";
+                let unpack_path   = format!("temp/tukui_{}", addon_name);
+                if let Err(err) = net::download::download(
+                    &client,
+                    &addon.url,
+                    &download_path,
+                ).await {
+                    log::warn!(
+                        "Skipping {} as it could not be downloaded: {}",
+                        addon_name,
+                        err,
+                    );
+                    continue;
+                }
+                match file::compression::unpack_zip(
+                    download_path,
+                    &unpack_path,
+                ) {
+                    Ok(())   => { log::info!("{} unzipped.", &addon_name); },
+                    Err(err) => {
+                        log::warn!(
+                            "Skipping {} because it failed to unzip: {}",
+                            &addon_name,
+                            err,
+                        );
+                        continue;
+                    }
+                };
+                std::fs::remove_file(download_path)?;
+            } else {
+                log::warn!(
+                    "Could not find Tukui addon {}.",
+                    addon_name,
+                );
+                continue;
+            }
+        }
+    }
+
     let temp_path = "temp";
     let addons    = match file::detection::detect_addons(&temp_path) {
         Ok(addons) => addons,

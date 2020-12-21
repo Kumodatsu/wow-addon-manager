@@ -8,6 +8,7 @@ pub struct Config {
     pub path:       String,
     pub github:     Option<Vec<String>>,
     pub curseforge: Option<Vec<u32>>,
+    pub tukui:      Option<Vec<String>>,
 }
 
 #[derive(Debug)]
