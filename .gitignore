@@ -1,4 +1,5 @@
 target/
 temp/
 log/
+data/
 config.yaml
