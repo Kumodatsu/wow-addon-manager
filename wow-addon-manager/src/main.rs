@@ -64,8 +64,14 @@ async fn main() -> Result<(), AddonError> {
         },
     };
 
-    std::fs::create_dir_all("temp")?;
+    // Temporary directory for intermediate file storage
+    let temp_path: PathBuf = PathBuf::from("temp");
+    if temp_path.exists() {
+        std::fs::remove_dir_all(&temp_path)?;
+    }
+    std::fs::create_dir_all(&temp_path)?;
 
+    // Client for API calls and downloading
     let client = Client::new();
 
     if let Some(curseforge) = config.curseforge {
@@ -253,7 +259,6 @@ async fn main() -> Result<(), AddonError> {
         }
     }
 
-    let temp_path = "temp";
     let addons    = match file::detection::detect_addons(&temp_path) {
         Ok(addons) => addons,
         Err(err)   => {
