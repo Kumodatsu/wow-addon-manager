@@ -13,12 +13,15 @@ mod file;
 
 use error::error::AddonError;
 
-fn setup_logger(verbose: bool) {
+fn setup_logger<PATH: AsRef<std::path::Path>>(
+    file_path: PATH,
+    verbose:   bool,
+) {
     Logger::with_str("info")
         .check_parser_error()
         .unwrap()
         .log_to_file()
-        .directory("log")
+        .directory(file_path.as_ref().join("log"))
         .suffix("log")
         .format_for_files(|write, now, record| {
             write!(
@@ -57,8 +60,11 @@ async fn main() -> Result<(), AddonError> {
     let cmd_args_data = load_yaml!("cmdargs.yaml");
     let args          = App::from_yaml(cmd_args_data).get_matches();
 
+    // Data folder
+    let data_path = PathBuf::from("data");
+
     // Logger
-    setup_logger(args.is_present("verbose"));
+    setup_logger(&data_path, args.is_present("verbose"));
 
     // Config
     let config_path = args.value_of("config").unwrap_or("config.yaml");
@@ -72,7 +78,7 @@ async fn main() -> Result<(), AddonError> {
     };
 
     // Temporary directory for intermediate file storage
-    let temp_path: PathBuf = PathBuf::from("temp");
+    let temp_path = data_path.join("temp");
     if temp_path.exists() {
         std::fs::remove_dir_all(&temp_path)?;
     }
@@ -103,12 +109,12 @@ async fn main() -> Result<(), AddonError> {
             let latest = net::curseforge::get_latest_release(&data.latest_files,
                 false);
             if let Some(latest) = latest {
-                let download_path = "temp/release.zip";
-                let unpack_path   = format!("temp/curse_{}", project_id);
+                let download_path = temp_path.join("release.zip");
+                let unpack_path   = temp_path.join(format!("curse_{}", project_id));
                 match net::download::download(
                     &client,
                     &latest.download_url,
-                    download_path
+                    &download_path,
                 ).await {
                     Ok(())   => { log::info!("Downloaded {}.", &data.name); },
                     Err(err) => {
@@ -121,7 +127,7 @@ async fn main() -> Result<(), AddonError> {
                     }
                 }
                 match file::compression::unpack_zip(
-                    download_path,
+                    &download_path,
                     &unpack_path,
                 ) {
                     Ok(())   => { log::info!("{} unzipped.", &data.name); },
@@ -152,7 +158,7 @@ async fn main() -> Result<(), AddonError> {
             let releases = match net::github::get_releases(
                 &client,
                 owner,
-                repo
+                repo,
             ).await {
                 Ok(releases) => releases,
                 Err(err)     => {
@@ -166,15 +172,15 @@ async fn main() -> Result<(), AddonError> {
             };
             let latest = net::github::get_latest_release(
                 &releases,
-                true
+                true,
             );
             if let Some(latest) = latest {
-                let download_path = "temp/release.tar.gz";
-                let unpack_path   = format!("temp/github_{}", repo);
+                let download_path = temp_path.join("release.tar.gz");
+                let unpack_path   = temp_path.join(format!("github_{}", repo));
                 match net::download::download(
                     &client,
                     &latest.tarball_url,
-                    download_path
+                    &download_path,
                 ).await {
                     Ok(())   => log::info!("Downloaded {}.", repo),
                     Err(err) => {
@@ -187,8 +193,8 @@ async fn main() -> Result<(), AddonError> {
                     }
                 }
                 match file::compression::unpack_tar(
-                    download_path,
-                    &unpack_path
+                    &download_path,
+                    &unpack_path,
                 ) {
                     Ok(())   => log::info!("Unpacked {}.", repo),
                     Err(err) => {
@@ -227,8 +233,8 @@ async fn main() -> Result<(), AddonError> {
                 },
             };
             if let Some(addon) = addon {
-                let download_path = "temp/tukuiaddon.zip";
-                let unpack_path   = format!("temp/tukui_{}", addon_name);
+                let download_path = temp_path.join("tukuiaddon.zip");
+                let unpack_path   = temp_path.join(format!("tukui_{}", addon_name));
                 if let Err(err) = net::download::download(
                     &client,
                     &addon.url,
@@ -242,7 +248,7 @@ async fn main() -> Result<(), AddonError> {
                     continue;
                 }
                 match file::compression::unpack_zip(
-                    download_path,
+                    &download_path,
                     &unpack_path,
                 ) {
                     Ok(())   => { log::info!("{} unzipped.", &addon_name); },
