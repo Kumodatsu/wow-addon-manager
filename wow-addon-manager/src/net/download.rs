@@ -2,6 +2,7 @@ use reqwest::Client;
 use reqwest::header;
 use std::fmt;
 use std::fs::File;
+use std::path::Path;
 use std::io;
 use std::io::prelude::*;
 
@@ -11,6 +12,8 @@ pub enum DownloadError {
     StatusError(reqwest::StatusCode),
     IOError(io::Error),
 }
+
+type Result<T, E = DownloadError> = ::std::result::Result<T, E>;
 
 impl From<reqwest::Error> for DownloadError {
     fn from(error: reqwest::Error) -> Self {
@@ -40,11 +43,11 @@ impl fmt::Display for DownloadError {
     }
 }
 
-pub async fn download(
+pub async fn download<PATH: AsRef<Path>>(
     client: &Client,
     url:    &str,
-    path:   &str,
-) -> Result<(), DownloadError> {
+    path:   PATH,
+) -> Result<()> {
     let response = client
         .get(url)
         .header(header::USER_AGENT, env!("CARGO_PKG_NAME"))
