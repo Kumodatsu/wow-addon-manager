@@ -1,6 +1,7 @@
 use fs_extra::dir::CopyOptions;
 use reqwest::Client;
 use flexi_logger::{Duplicate, Logger};
+use std::path::PathBuf;
 
 #[macro_use]
 extern crate clap;
@@ -12,11 +13,7 @@ mod file;
 
 use error::error::AddonError;
 
-#[tokio::main]
-async fn main() -> Result<(), AddonError> {
-    let yaml = load_yaml!("cmdargs.yaml");
-    let args = App::from_yaml(yaml).get_matches();
-
+fn setup_logger(verbose: bool) {
     Logger::with_str("info")
         .check_parser_error()
         .unwrap()
@@ -35,7 +32,7 @@ async fn main() -> Result<(), AddonError> {
             )
         })
         .duplicate_to_stderr(
-            if args.is_present("verbose") {
+            if verbose {
                 Duplicate::All
             } else {
                 Duplicate::Warn
@@ -51,11 +48,21 @@ async fn main() -> Result<(), AddonError> {
             )
         })
         .start()
-        .unwrap_or_else(|e| panic!("Failed to initalize logger: {}", e));    
+        .unwrap_or_else(|e| panic!("Failed to initalize logger: {}", e));
+}
 
+#[tokio::main]
+async fn main() -> Result<(), AddonError> {
+    // Command line arguments
+    let cmd_args_data = load_yaml!("cmdargs.yaml");
+    let args          = App::from_yaml(cmd_args_data).get_matches();
+
+    // Logger
+    setup_logger(args.is_present("verbose"));
+
+    // Config
     let config_path = args.value_of("config").unwrap_or("config.yaml");
     log::info!("Using configuration file: {}", config_path);
-
     let config = match file::config::read_config(config_path) {
         Ok(config) => config,
         Err(err)   => {
