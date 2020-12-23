@@ -5,7 +5,10 @@ use std::path::Path;
 use flate2::read::GzDecoder;
 use tar::Archive;
 
-pub fn unpack_tar(in_path: &str, out_path: &str) -> Result<(), io::Error> {
+pub fn unpack_tar<PATH: AsRef<Path>>(
+    in_path:  PATH,
+    out_path: PATH,
+) -> Result<(), io::Error> {
     let file = File::open(in_path)?;
     let tar = GzDecoder::new(file);
     let mut archive = Archive::new(tar);
@@ -13,13 +16,16 @@ pub fn unpack_tar(in_path: &str, out_path: &str) -> Result<(), io::Error> {
     Ok(())
 }
 
-pub fn unpack_zip(in_path: &str, out_path: &str) -> Result<(), io::Error> {
+pub fn unpack_zip<PATH: AsRef<Path>>(
+    in_path:  PATH,
+    out_path: PATH,
+) -> Result<(), io::Error> {
     let zipfile = File::open(&in_path)?;
     let mut archive = zip::ZipArchive::new(zipfile)?;
     for i in 0 .. archive.len() {
         let mut file = archive.by_index(i)?;
         let file_out_path = match file.enclosed_name() {
-            Some(path) => Path::new(out_path).join(path).to_owned(),
+            Some(path) => out_path.as_ref().join(path),
             None       => continue,
         };
         if (&*file.name()).ends_with('/') {
