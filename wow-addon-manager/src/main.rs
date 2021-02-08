@@ -77,6 +77,17 @@ async fn main() -> Result<(), AddonError> {
         },
     };
 
+    // Addons path
+    let addons_path  = std::path::PathBuf::from(&config.path)
+        .join("_retail_/Interface/AddOns");
+    if !addons_path.exists() {
+        log::error!(
+            "The path \"{}\" is not a valid World of Warcraft installation.",
+            &config.path
+        );
+        return Ok(());
+    }
+
     // Temporary directory for intermediate file storage
     let temp_path = data_path.join("temp");
     if temp_path.exists() {
@@ -284,7 +295,6 @@ async fn main() -> Result<(), AddonError> {
     };
 
     let copy_options = CopyOptions::new();
-    let addons_path  = std::path::PathBuf::from(&config.path);
 
     for addon in addons {
         log::info!("Copying {}.", addon.name);
